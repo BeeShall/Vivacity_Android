@@ -17,26 +17,31 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LoginActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        final EditText userName = (android.widget.EditText) findViewById(R.id.inputUserName);
-        final EditText password = (EditText) findViewById(R.id.inputPassword);
+        setContentView(R.layout.activity_sign_up);
+        final EditText userName = (EditText) findViewById(R.id.txtUserName);
+        final EditText email = (EditText) findViewById(R.id.txtEmail);
+        final EditText zipcode = (EditText) findViewById(R.id.txtZip);
+        final EditText password = (EditText) findViewById(R.id.txtPassword);
+        final EditText confPass = (EditText) findViewById(R.id.txtConfPass);
 
-        Button logInBtn = (Button) findViewById(R.id.btnLogIn);
-        System.out.print(logInBtn.getText());
+        Button register = (Button) findViewById(R.id.btnSignUp);
 
-        logInBtn.setOnClickListener(new View.OnClickListener() {
+
+        register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = Globals.serverAddress +"login_mobile";
+                String url = Globals.serverAddress +"signup_mobile";
                 JSONObject body = new JSONObject();
                 try {
                     body.put("username", userName.getText());
                     body.put("password", password.getText());
+                    body.put("email", email.getText());
+                    body.put("zip", zipcode.getText());
 
                     JsonObjectRequest jsObjRequest = new JsonObjectRequest
                             (Request.Method.POST, url, body, new Response.Listener<JSONObject>() {
@@ -44,20 +49,20 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onResponse(JSONObject response) {
                                     try {
+                                        System.out.print(response.toString());
+                                        Log.v("resposne",response.toString());
                                         if ((boolean)response.get("success")) {
-                                            Intent newIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                                            Log.v("id", response.toString());
-                                            newIntent.putExtra("user", response.get("user").toString() );
-                                            newIntent.putExtra("userName", userName.getText());
+                                            Intent newIntent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                            finishActivity(0);
                                             startActivity(newIntent);
                                         }
                                         else{
-                                            Toast.makeText(LoginActivity.this,"Login failed",Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(SignUpActivity.this,"Invalid field values",Toast.LENGTH_SHORT).show();
                                         }
                                     }
-                                    catch (JSONException e){
-                                        System.out.println("Exception while creating JSON");
-
+                                    catch (JSONException e)
+                                    {
+                                        System.out.print(e.getMessage());
                                     }
                                 }
                             }, new Response.ErrorListener() {
@@ -66,26 +71,14 @@ public class LoginActivity extends AppCompatActivity {
                                     System.out.println(error.toString());
                                 }
                             });
-                    QueueSingleton.getInstance(LoginActivity.this).addToRequestQueue(jsObjRequest);
+                    QueueSingleton.getInstance(SignUpActivity.this).addToRequestQueue(jsObjRequest);
                 }
                 catch (JSONException e){
                     System.out.println("Exception while creating JSON");
 
                 }
 
-
             }
         });
-
-        Button signUpBtn = (Button) findViewById(R.id.btnRegister);
-        signUpBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent newIntent = new Intent(LoginActivity.this, SignUpActivity.class);
-                startActivity(newIntent);
-
-            }
-        });
-
     }
 }
